@@ -40,7 +40,7 @@ mongoose.Promise = global.Promise;
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "MongoDB connection error:"));
 
-var allowedOrigins = ["http://localhost:9000"];
+var allowedOrigins = ["http://localhost:3000", "http://localhost:9000"];
 
 app.use(
   cors({
