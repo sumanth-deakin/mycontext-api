@@ -1,7 +1,8 @@
 const User = require("../models/user.model");
 const jwt = require("jsonwebtoken");
+const Request = require("request");
 
-exports.listUsers = function(req, res) {
+exports.listUsers = function (req, res) {
   var output = {
     success: true,
     message: "Successfully fetched users."
@@ -9,12 +10,12 @@ exports.listUsers = function(req, res) {
   res.json(output);
 };
 
-exports.register = function(req, res) {
+exports.register = function (req, res) {
   User.findOne(
     {
       email: req.body.email
     },
-    function(err, user) {
+    function (err, user) {
       if (err) {
         throw err;
       }
@@ -31,13 +32,34 @@ exports.register = function(req, res) {
           message: "User already exists."
         });
       } else {
-        new_user.save(function(err) {
+        new_user.save(function (err) {
           if (err) {
             throw err;
           }
-          res.json({
-            success: true,
-            message: "User registration successful."
+
+          Request.post({
+            "headers": { "content-type": "application/json" },
+            "url": "http://localhost:3000/api/com.mycontext.Owner",
+            "body": JSON.stringify({
+              "$class": "com.mycontext.Owner",
+              "ownerId": user._id,
+              "name": user.name
+            })
+          }, (error, response, body) => {
+            if (error) {
+
+              new_user.remove();
+
+              res.json({
+                success: false,
+                message: "User registration failed."
+              });
+            }
+
+            res.json({
+              success: true,
+              message: "User registration successful."
+            });
           });
         });
       }
@@ -45,18 +67,18 @@ exports.register = function(req, res) {
   );
 };
 
-exports.login = function(req, res) {
+exports.login = function (req, res) {
   User.findOne(
     {
       email: req.body.email
     },
-    function(err, user) {
+    function (err, user) {
       if (err) {
         throw err;
       }
 
       if (user) {
-        user.comparePassword(req.body.password, function(err, isMatch) {
+        user.comparePassword(req.body.password, function (err, isMatch) {
           if (err) {
             throw err;
           }
@@ -75,7 +97,7 @@ exports.login = function(req, res) {
               message: "Access token generation successfull.",
               token: token,
               name: user.name,
-              email:user.email
+              email: user.email
             });
           } else {
             res.json({
