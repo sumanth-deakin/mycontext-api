@@ -1,6 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const userRoute = require("./routes/user.route");
+const recordRoute = require("./routes/record.route");
 const mongoose = require("mongoose");
 const cors = require("cors");
 
@@ -40,28 +41,29 @@ mongoose.Promise = global.Promise;
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "MongoDB connection error:"));
 
-var allowedOrigins = ["http://localhost:3000", "http://localhost:9000"];
+// var allowedOrigins = ["http://localhost:3000", "http://localhost:9000"];
 
-app.use(
-  cors({
-    origin: function(origin, callback) {
-      if (!origin) return callback(null, true);
-      if (allowedOrigins.indexOf(origin) === -1) {
-        var msg =
-          "The CORS policy for this site does not " +
-          "allow access from the specified Origin.";
-        return callback(new Error(msg), false);
-      }
-      return callback(null, true);
-    }
-  })
-);
+// app.use(
+//   cors({
+//     origin: function(origin, callback) {
+//       if (!origin) return callback(null, true);
+//       if (allowedOrigins.indexOf(origin) === -1) {
+//         var msg =
+//           "The CORS policy for this site does not " +
+//           "allow access from the specified Origin.";
+//         return callback(new Error(msg), false);
+//       }
+//       return callback(null, true);
+//     }
+//   })
+// );
 
 app.get("/", (req, res) => {
   res.send("Bring it on! MyContext is running.");
 });
 
 app.use("/user", userRoute);
+app.use("/record", recordRoute);
 
 const port = process.env.PORT || 9000;
 
