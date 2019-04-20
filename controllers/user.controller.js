@@ -32,9 +32,12 @@ exports.register = function (req, res) {
           message: "User already exists."
         });
       } else {
-        new_user.save(function (err) {
-          if (err) {
-            throw err;
+        new_user.save(function (error) {
+          if (error) {
+            res.json({
+              success: false,
+              message: "User registration failed."
+            });
           }
 
           Request.post({
@@ -42,14 +45,13 @@ exports.register = function (req, res) {
             "url": "http://localhost:3000/api/com.mycontext.Owner",
             "body": JSON.stringify({
               "$class": "com.mycontext.Owner",
-              "ownerId": user._id,
-              "name": user.name
+              "ownerId": new_user._id,
+              "name": new_user.name
             })
-          }, (error, response, body) => {
-            if (error) {
+          }, function (err, httpResponse, body) {
 
+            if (err) {
               new_user.remove();
-
               res.json({
                 success: false,
                 message: "User registration failed."
@@ -60,12 +62,12 @@ exports.register = function (req, res) {
               success: true,
               message: "User registration successful."
             });
-          });
+
+          })
         });
       }
-    }
-  );
-};
+    })
+}
 
 exports.login = function (req, res) {
   User.findOne(
