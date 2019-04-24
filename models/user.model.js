@@ -16,6 +16,10 @@ let UserSchema = new Schema({
       unique: true
     }
   },
+  user_type: {
+    type: String,
+    required: true
+  },
   password: {
     type: String,
     required: true
@@ -38,8 +42,6 @@ UserSchema.pre("save", function(next) {
   } catch (error) {
     throw error;
   }
-
- 
 });
 
 UserSchema.methods.comparePassword = function(candidatePassword, cb) {
