@@ -220,9 +220,9 @@ exports.listOwnerRecords = function(req, res) {
   const userId = req.body.userId;
 
   const filter =
-    "%7B%22owner%22%3A%20%22resource%3Acom.mycontext.Owner%23" +
+    "%7B%22where%22%3A%7B%22owner%22%3A%20%22resource%3Acom.mycontext.Owner%23" +
     userId +
-    "%22%7D";
+    "%22%7D%7D";
 
   Request(
     "http://40.87.43.191:3000/api/com.mycontext.MedicalRecord?filter=" + filter,
@@ -247,48 +247,6 @@ exports.listOwnerRecords = function(req, res) {
           "price"
         ]
       )
-        .skip(from)
-        .limit(size)
-        .then(result => {
-          res.json({
-            success: true,
-            data: result,
-            message: "Owner medical records fetched successfully."
-          });
-        })
-        .catch(error => {
-          res.json({
-            success: false,
-            message: "Unable to fetch medical records."
-          });
-        });
-    }
-  );
-};
-
-exports.listOwnerRecords = function(req, res) {
-  const from = req.body.from;
-  const size = req.body.size;
-  const userId = req.body.userId;
-
-  const filter =
-    "%7B%22owner%22%3A%20%22resource%3Acom.mycontext.Owner%23" +
-    userId +
-    "%22%7D";
-
-  Request(
-    "http://40.87.43.191:3000/api/com.mycontext.MedicalRecord?filter=" + filter,
-    function(error, response, body) {
-      const records = JSON.parse(body);
-      const ids = [];
-
-      records.map(record => {
-        ids.push(record.medicalRecordId);
-      });
-
-      Record.find({
-        _id: { $in: ids }
-      })
         .skip(from)
         .limit(size)
         .then(result => {
