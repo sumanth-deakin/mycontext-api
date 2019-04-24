@@ -7,6 +7,9 @@ let RecordSchema = new Schema({
     name: {
         type: String
     },
+    price:{
+        type: String
+    },
     age_at_diagnosis: {
         type: String
     },
