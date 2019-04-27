@@ -41,7 +41,7 @@ mongoose.Promise = global.Promise;
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "MongoDB connection error:"));
 
-var allowedOrigins = ["http://localhost:3000", "http://localhost:9000","https://mycontext.herokuapp.com/","https://api-mycontext.herokuapp.com/"];
+var allowedOrigins = ["https://mycontext.herokuapp.com/","https://api-mycontext.herokuapp.com/"];
 
 app.use(
   cors({
