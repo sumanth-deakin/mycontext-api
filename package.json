@@ -25,5 +25,9 @@
     "mongoose": "^5.4.21",
     "mongoose-field-encryption": "2.3.0",
     "request": "^2.88.0"
+  },
+  "engines": {
+    "node": "8.16.0",
+    "npm": "6.4.1"
   }
 }
