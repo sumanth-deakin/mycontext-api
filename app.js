@@ -41,14 +41,14 @@ mongoose.Promise = global.Promise;
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "MongoDB connection error:"));
 
-var allowedOrigins = ["https://mycontext.herokuapp.com/","https://api-mycontext.herokuapp.com/"];
+var allowedOrigins = [
+  "https://mycontext.herokuapp.com",
+];
 
 app.use(
   cors({
     origin: function(origin, callback) {
       if (!origin) return callback(null, true);
-      console.log("--------------------");
-      console.log(origin);
       if (allowedOrigins.indexOf(origin) === -1) {
         var msg =
           "The CORS policy for this site does not " +
