@@ -10,6 +10,18 @@ let RecordSchema = new Schema({
   price: {
     type: String
   },
+  cancer_type: {
+    type: String
+  },
+  gp_practice: {
+    type: String
+  },
+  gp_practice_address: {
+    type: String
+  },
+  others: {
+    type: String
+  },
   country: {
     type: String
   },
@@ -410,7 +422,10 @@ let RecordSchema = new Schema({
 
 RecordSchema.plugin(mongooseFieldEncryption, {
   fields: [
-    "age_at_diagnosis",
+    "gp_practice",
+    "gp_practice_address",
+    "others",
+    "country",
     "ajcc_stage_3_edition",
     "aya_site_recode_who_2008",
     "behavior",
@@ -435,12 +450,12 @@ RecordSchema.plugin(mongooseFieldEncryption, {
     "cs_mets_eval",
     "cs_schema_ajcc_6",
     "cs_schema_v0204",
-    "cs_site-specific_factor_10",
-    "cs_site-specific_factor_11",
-    "cs_site-specific_factor_13",
-    "cs_site-specific_factor_15",
-    "cs_site-specific_factor_16",
-    "cs_site-specific_factor_8",
+    "cs_site_specific_factor_10",
+    "cs_site_specific_factor_11",
+    "cs_site_specific_factor_13",
+    "cs_site_specific_factor_15",
+    "cs_site_specific_factor_16",
+    "cs_site_specific_factor_8",
     "cs_site_specific_factor_1",
     "cs_site_specific_factor_12",
     "cs_site_specific_factor_2",
