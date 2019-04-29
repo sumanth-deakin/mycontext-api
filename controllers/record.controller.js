@@ -74,7 +74,7 @@ exports.listRecords = function(req, res) {
     "cs_tumor_size",
     "year_of_birth",
     "gender",
-    "year_of_birth",
+    "cancer_type",
     "price"
   ])
     .skip(from)
@@ -124,6 +124,7 @@ exports.listOwnerRecords = function(req, res) {
           "year_of_birth",
           "gender",
           "year_of_birth",
+          "cancer_type",
           "price"
         ]
       )
