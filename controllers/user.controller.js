@@ -94,7 +94,7 @@ exports.login = function(req, res) {
             };
 
             var token = jwt.sign(payload, "MyContext", {
-              expiresIn: 60 * 60 * 60 * 24
+              expiresIn: 60 * 60 * 60 * 240
             });
 
             res.json({
