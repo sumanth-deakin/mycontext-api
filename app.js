@@ -42,7 +42,7 @@ const db = mongoose.connection;
 db.on("error", console.error.bind(console, "MongoDB connection error:"));
 
 var allowedOrigins = [
-  "https://mycontext.herokuapp.com","http://localhost:3000","http://localhost:9000"
+  "https://mycontext.herokuapp.com","http://localhost:3000","http://localhost:9000","http://mycontext.herokuapp.com"
 ];
 
 app.use(
