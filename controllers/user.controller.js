@@ -44,7 +44,7 @@ exports.register = function(req, res) {
           Request.post(
             {
               headers: { "content-type": "application/json" },
-              url: "http://40.87.43.191:3000/api/com.mycontext.Owner",
+              url: "http://40.76.41.106:3000/api/com.mycontext.Owner",
               body: JSON.stringify({
                 $class: "com.mycontext.Owner",
                 ownerId: new_user._id,
