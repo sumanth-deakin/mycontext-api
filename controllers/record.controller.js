@@ -1,116 +1,101 @@
 const Record = require("../models/record.model");
 const Request = require("request");
 const User = require("../models/user.model");
-const Cryptr = require("cryptr");
+const apiConstructor = require("node-object-hash");
 
 exports.addRecord = function(req, res) {
   const userId = req.body.userId;
 
   const new_record = new Record(req.body.data);
-  const cryptr = new Cryptr(new_record.id);
-  const encryptedRecord = cryptr.encrypt(JSON.stringify(new_record));
+  const hasher = apiConstructor().hash;
+  const hash = hasher(new_record);
 
-  var medicalRecord = {
-    $class: "com.mycontext.MedicalRecord",
-    medicalRecordId: new_record.id,
-    name: new_record.name,
-    cs_tumor_size: new_record.cs_tumor_size,
-    gender: new_record.gender,
-    cancer_type: new_record.cancer_type,
-    year_of_birth: new_record.year_of_birth,
-    price: new_record.price,
-    others: encryptedRecord,
-    owner: "resource:com.mycontext.Owner#" + userId
-  };
+  new_record
+    .save()
+    .then(result => {
+      var medicalRecord = {
+        $class: "com.mycontext.MedicalRecord",
+        medicalRecordId: new_record.id,
+        hash: hash,
+        owner: "resource:com.mycontext.Owner#" + userId
+      };
 
-  Request.post(
-    {
-      headers: { "content-type": "application/json" },
-      url: "http://40.76.41.106:3000/api/com.mycontext.MedicalRecord",
-      body: JSON.stringify(medicalRecord)
-    },
-    (error, response, body) => {
-      if (error) {
-        res.json({
-          success: false,
-          message: "Failed to save medical record."
-        });
-      }
+      Request.post(
+        {
+          headers: { "content-type": "application/json" },
+          url: "http://40.76.199.218:3000/api/com.mycontext.MedicalRecord",
+          body: JSON.stringify(medicalRecord)
+        },
+        (error, response, body) => {
+          if (error) {
+            result.remove();
 
+            res.json({
+              success: false,
+              message: "Failed to save medical record."
+            });
+          }
+
+          res.json({
+            success: true,
+            message: "Medical record added successfully."
+          });
+        }
+      );
+    })
+    .catch(error => {
+      res.json({
+        success: false,
+        message: "Failed to save medical record."
+      });
+    });
+};
+
+exports.updateRecord = function(req, res) {
+  const id = req.body.data._id;
+
+  Record.findOneAndUpdate({ _id: req.body.data._id }, req.body.data)
+    .then(result => {
       res.json({
         success: true,
-        message: "Medical record added successfully."
+        message: "Medical record updated successfully."
       });
-    }
-  );
+    })
+    .catch(error => {
+      res.json({
+        success: false,
+        message: "Failed to update medical record."
+      });
+    });
 };
 
 exports.listRecords = function(req, res) {
   const from = req.body.from;
   const size = req.body.size;
 
-  Request("http://40.76.41.106:3000/api/com.mycontext.MedicalRecord", function(
-    error,
-    response,
-    body
-  ) {
-    if (error) {
+  Record.find({}, [
+    "name",
+    "cs_tumor_size",
+    "year_of_birth",
+    "gender",
+    "cancer_type",
+    "price"
+  ])
+    .skip(from)
+    .limit(size)
+    .then(result => {
+      res.json({
+        success: true,
+        data: result,
+        message: "Medical records fetched successfully."
+      });
+    })
+    .catch(error => {
       res.json({
         success: false,
         message: "Unable to fetch medical records."
       });
-    }
-
-    const records = JSON.parse(body);
-
-    res.json({
-      success: true,
-      data: records,
-      message: "Medical records fetched successfully."
     });
-  });
-};
-
-exports.updateRecord = function(req, res) {
-  const userId = req.body.userId;
-
-  const record = req.body.data;
-  const cryptr = new Cryptr(record._id);
-  const encryptedRecord = cryptr.encrypt(JSON.stringify(record));
-
-  var medicalRecord = {
-    $class: "com.mycontext.MedicalRecord",
-    medicalRecordId: record._id,
-    name: record.name,
-    cs_tumor_size: record.cs_tumor_size,
-    gender: record.gender,
-    cancer_type: record.cancer_type,
-    year_of_birth: record.year_of_birth,
-    price: record.price,
-    others: encryptedRecord,
-    owner: "resource:com.mycontext.Owner#" + userId
-  };
-
-  Request.put(
-    {
-      headers: { "content-type": "application/json" },
-      url: "http://40.76.41.106:3000/api/com.mycontext.MedicalRecord/"+record._id,
-      body: JSON.stringify(medicalRecord)
-    },
-    (error, response, body) => {
-      if (error) {
-        res.json({
-          success: false,
-          message: "Failed to update medical record."
-        });
-      }
-
-      res.json({
-        success: true,
-        message: "Medical record updated successfully."
-      });
-    }
-  );
 };
 
 exports.listOwnerRecords = function(req, res) {
@@ -124,29 +109,44 @@ exports.listOwnerRecords = function(req, res) {
     "%22%7D%7D";
 
   Request(
-    "http://40.76.41.106:3000/api/com.mycontext.MedicalRecord?filter=" + filter,
+    "http://40.76.199.218:3000/api/com.mycontext.MedicalRecord?filter=" + filter,
     function(error, response, body) {
-      if (error) {
-        res.json({
-          success: false,
-          message: "Unable to fetch medical records."
-        });
-      }
-
       const records = JSON.parse(body);
-      const decryptedRecords = [];
+      const ids = [];
 
       records.map(record => {
-        const cryptr = new Cryptr(record.medicalRecordId);
-        const decryptedRecord = cryptr.decrypt(record.others);
-        decryptedRecords.push(JSON.parse(decryptedRecord));
+        ids.push(record.medicalRecordId);
       });
 
-      res.json({
-        success: true,
-        data: decryptedRecords,
-        message: "Owner medical records fetched successfully."
-      });
+      Record.find(
+        {
+          _id: { $in: ids }
+        },
+        [
+          "name",
+          "cs_tumor_size",
+          "year_of_birth",
+          "gender",
+          "year_of_birth",
+          "cancer_type",
+          "price"
+        ]
+      )
+        .skip(from)
+        .limit(size)
+        .then(result => {
+          res.json({
+            success: true,
+            data: result,
+            message: "Owner medical records fetched successfully."
+          });
+        })
+        .catch(error => {
+          res.json({
+            success: false,
+            message: "Unable to fetch medical records."
+          });
+        });
     }
   );
 };
@@ -154,27 +154,20 @@ exports.listOwnerRecords = function(req, res) {
 exports.viewRecord = function(req, res) {
   const id = req.body.id;
 
-  Request(
-    "http://40.76.41.106:3000/api/com.mycontext.MedicalRecord/" + id,
-    function(error, response, body) {
-      if (error) {
-        res.json({
-          success: false,
-          message: "Unable to fetch medical record."
-        });
-      }
-
-      const record = JSON.parse(body);
-      const cryptr = new Cryptr(record.medicalRecordId);
-      const decryptedRecord = cryptr.decrypt(record.others);
-
+  Record.findById(id)
+    .then(result => {
       res.json({
         success: true,
-        data: JSON.parse(decryptedRecord),
+        data: result,
         message: "Medical record fetched successfully."
       });
-    }
-  );
+    })
+    .catch(error => {
+      res.json({
+        success: false,
+        message: "Unable to fetch medical records."
+      });
+    });
 };
 
 exports.changeOwnership = function(req, res) {
@@ -197,7 +190,7 @@ exports.changeOwnership = function(req, res) {
           {
             headers: { "content-type": "application/json" },
             url:
-              "http://40.76.41.106:3000/api/com.mycontext.ChangeMedicalRecordOwner",
+              "http://40.76.199.218:3000/api/com.mycontext.ChangeMedicalRecordOwner",
             body: JSON.stringify(ownership)
           },
           (error, response, body) => {
@@ -235,7 +228,7 @@ exports.deleteRecord = function(req, res) {
 
   Request.delete(
     {
-      url: "http://40.76.41.106:3000/api/com.mycontext.MedicalRecord/" + id
+      url: "http://40.76.199.218:3000/api/com.mycontext.MedicalRecord/" + id
     },
     (error, response, body) => {
       if (error) {
@@ -245,10 +238,19 @@ exports.deleteRecord = function(req, res) {
         });
       }
 
-      res.json({
-        success: true,
-        message: "Medical record deleted successfully."
-      });
+      Record.findByIdAndDelete(id)
+        .then(result => {
+          res.json({
+            success: true,
+            message: "Medical record deleted successfully."
+          });
+        })
+        .catch(error => {
+          res.json({
+            success: false,
+            message: "Failed to delete medical record."
+          });
+        });
     }
   );
 };

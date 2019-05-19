@@ -33,7 +33,7 @@ exports.register = function(req, res) {
           message: "User already exists."
         });
       } else {
-        new_user.save(function(error) {
+        new_user.save(function(error, result) {
           if (error) {
             res.json({
               success: false,
@@ -44,7 +44,7 @@ exports.register = function(req, res) {
           Request.post(
             {
               headers: { "content-type": "application/json" },
-              url: "http://40.76.41.106:3000/api/com.mycontext.Owner",
+              url: "http://40.76.199.218:3000/api/com.mycontext.Owner",
               body: JSON.stringify({
                 $class: "com.mycontext.Owner",
                 ownerId: new_user._id,
@@ -53,7 +53,7 @@ exports.register = function(req, res) {
             },
             function(err, httpResponse, body) {
               if (err) {
-                new_user.remove();
+                result.remove();
                 res.json({
                   success: false,
                   message: "User registration failed."
