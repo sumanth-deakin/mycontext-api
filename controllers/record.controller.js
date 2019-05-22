@@ -2,11 +2,27 @@ const Record = require("../models/record.model");
 const Request = require("request");
 const User = require("../models/user.model");
 const apiConstructor = require("node-object-hash");
+const Cryptr = require("cryptr");
 
 exports.addRecord = function(req, res) {
   const userId = req.body.userId;
+  const data = req.body.data;
 
-  const new_record = new Record(req.body.data);
+  const new_record = new Record();
+  const cryptr = new Cryptr(new_record.id);
+  data.id = new_record.id;
+
+  new_record.name = data.name;
+  new_record.price = data.price;
+  new_record.cancer_type = data.cancer_type;
+  new_record.age_at_diagnosis = data.age_at_diagnosis;
+  new_record.cs_tumor_size = data.cs_tumor_size;
+  new_record.gender = data.gender;
+  new_record.year_of_birth = data.year_of_birth;
+
+  const encryptedRecord = cryptr.encrypt(JSON.stringify(data));
+  new_record.data = encryptedRecord;
+
   const hasher = apiConstructor().hash;
   const hash = hasher(new_record);
 
@@ -109,7 +125,8 @@ exports.listOwnerRecords = function(req, res) {
     "%22%7D%7D";
 
   Request(
-    "http://40.76.199.218:3000/api/com.mycontext.MedicalRecord?filter=" + filter,
+    "http://40.76.199.218:3000/api/com.mycontext.MedicalRecord?filter=" +
+      filter,
     function(error, response, body) {
       const records = JSON.parse(body);
       const ids = [];
@@ -156,9 +173,12 @@ exports.viewRecord = function(req, res) {
 
   Record.findById(id)
     .then(result => {
+      const cryptr = new Cryptr(result.id);
+      const decryptedRecord = cryptr.decrypt(result.data);
+
       res.json({
         success: true,
-        data: result,
+        data: JSON.parse(decryptedRecord),
         message: "Medical record fetched successfully."
       });
     })
