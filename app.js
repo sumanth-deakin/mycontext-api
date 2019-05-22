@@ -6,7 +6,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 
 const app = express();
-
+const portNumber = "8080";
 app.use(
   bodyParser.urlencoded({
     extended: true
