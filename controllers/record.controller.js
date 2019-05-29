@@ -5,7 +5,7 @@ const apiConstructor = require("node-object-hash");
 const Cryptr = require("cryptr");
 
 exports.addRecord = function(req, res) {
-  const userId = req.body.userId;
+  const userId = req.body.patient_id;
   const data = req.body.data;
 
   const new_record = new Record();
@@ -39,7 +39,7 @@ exports.addRecord = function(req, res) {
       Request.post(
         {
           headers: { "content-type": "application/json" },
-          url: "http://40.76.199.218:3000/api/com.mycontext.MedicalRecord",
+          url: "http://23.96.53.40:3000/api/com.mycontext.MedicalRecord",
           body: JSON.stringify(medicalRecord)
         },
         (error, response, body) => {
@@ -125,7 +125,7 @@ exports.listOwnerRecords = function(req, res) {
     "%22%7D%7D";
 
   Request(
-    "http://40.76.199.218:3000/api/com.mycontext.MedicalRecord?filter=" +
+    "http://23.96.53.40:3000/api/com.mycontext.MedicalRecord?filter=" +
       filter,
     function(error, response, body) {
       const records = JSON.parse(body);
@@ -210,7 +210,7 @@ exports.changeOwnership = function(req, res) {
           {
             headers: { "content-type": "application/json" },
             url:
-              "http://40.76.199.218:3000/api/com.mycontext.ChangeMedicalRecordOwner",
+              "http://23.96.53.40:3000/api/com.mycontext.ChangeMedicalRecordOwner",
             body: JSON.stringify(ownership)
           },
           (error, response, body) => {
@@ -248,7 +248,7 @@ exports.deleteRecord = function(req, res) {
 
   Request.delete(
     {
-      url: "http://40.76.199.218:3000/api/com.mycontext.MedicalRecord/" + id
+      url: "http://23.96.53.40:3000/api/com.mycontext.MedicalRecord/" + id
     },
     (error, response, body) => {
       if (error) {

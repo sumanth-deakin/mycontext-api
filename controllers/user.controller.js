@@ -3,11 +3,22 @@ const jwt = require("jsonwebtoken");
 const Request = require("request");
 
 exports.listUsers = function(req, res) {
-  var output = {
-    success: true,
-    message: "Successfully fetched users."
-  };
-  res.json(output);
+  User.find({ user_type: "Patient" }, ["_id", "name"], function(error, users) {
+    if (error) {
+      var output = {
+        success: false,
+        message: "Unable to list users."
+      };
+      res.json(output);
+    }
+
+    var output = {
+      success: true,
+      message: "Successfully fetched users list.",
+      data: users
+    };
+    res.json(output);
+  });
 };
 
 exports.register = function(req, res) {
@@ -44,7 +55,7 @@ exports.register = function(req, res) {
           Request.post(
             {
               headers: { "content-type": "application/json" },
-              url: "http://40.76.199.218:3000/api/com.mycontext.Owner",
+              url: "http://23.96.53.40:3000/api/com.mycontext.Owner",
               body: JSON.stringify({
                 $class: "com.mycontext.Owner",
                 ownerId: new_user._id,
@@ -102,7 +113,8 @@ exports.login = function(req, res) {
               message: "Access token generation successfull.",
               token: token,
               name: user.name,
-              email: user.email
+              email: user.email,
+              user_type: user.user_type
             });
           } else {
             res.json({
